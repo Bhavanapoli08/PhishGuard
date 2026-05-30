@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhishGuard — Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">🛡️ PhishGuard</div>
+  <div class="navlinks">
+    <a href="{{ url_for('index') }}">Scanner</a>
+    <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+
+  <h1>Analyst Dashboard</h1>
+  <p class="subtitle">Live audit trail of every scan processed by PhishGuard.</p>
+
+  <!-- KPI cards -->
+  <section class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-num">{{ stats.total }}</div>
+      <div class="kpi-label">Total scans</div>
+    </div>
+    <div class="kpi-card verdict-green">
+      <div class="kpi-num">{{ stats.by_verdict.get('SAFE', 0) }}</div>
+      <div class="kpi-label">Safe</div>
+    </div>
+    <div class="kpi-card verdict-yellow">
+      <div class="kpi-num">{{ stats.by_verdict.get('LOW RISK', 0) }}</div>
+      <div class="kpi-label">Low risk</div>
+    </div>
+    <div class="kpi-card verdict-orange">
+      <div class="kpi-num">{{ stats.by_verdict.get('SUSPICIOUS', 0) }}</div>
+      <div class="kpi-label">Suspicious</div>
+    </div>
+    <div class="kpi-card verdict-red">
+      <div class="kpi-num">{{ stats.by_verdict.get('DANGEROUS', 0) }}</div>
+      <div class="kpi-label">Dangerous</div>
+    </div>
+  </section>
+
+  <!-- Top bad domains -->
+  <section class="module-card">
+    <h2>🏆 Top Flagged Domains</h2>
+    {% if stats.top_bad_domains %}
+    <table class="data-table">
+      <thead><tr><th>Domain</th><th>Times flagged</th><th>Avg score</th></tr></thead>
+      <tbody>
+      {% for d in stats.top_bad_domains %}
+      <tr>
+        <td><code>{{ d.domain }}</code></td>
+        <td>{{ d.hits }}</td>
+        <td>{{ '%.1f' | format(d.avg_score) }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="muted">No flagged domains yet.</p>
+    {% endif %}
+  </section>
+
+  <!-- Recent scans -->
+  <section class="module-card">
+    <h2>📜 Recent Scans</h2>
+    {% if recent %}
+    <table class="data-table">
+      <thead>
+        <tr><th>Time (UTC)</th><th>URL</th><th>Verdict</th><th>Score</th><th></th></tr>
+      </thead>
+      <tbody>
+      {% for r in recent %}
+      <tr>
+        <td>{{ r.ts }}</td>
+        <td class="url-cell"><code>{{ r.url[:80] }}{% if r.url|length > 80 %}…{% endif %}</code></td>
+        <td><span class="pill pill-{{ r.verdict|lower|replace(' ', '-') }}">{{ r.verdict }}</span></td>
+        <td>{{ r.final_score }}</td>
+        <td><a class="view-link" href="{{ url_for('scan_detail', scan_id=r.id) }}">View</a></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="muted">No scans logged yet. Run one from the <a href="{{ url_for('index') }}">scanner</a>.</p>
+    {% endif %}
+  </section>
+
+  <footer class="footer">
+    <p>API endpoints: <code>POST /api/v1/scan</code> · <code>GET /api/v1/stats</code></p>
+  </footer>
+
+</main>
+</body>
+</html>

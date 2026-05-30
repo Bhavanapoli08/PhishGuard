@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhishGuard — Multi-Layer URL Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">🛡️ PhishGuard</div>
+  <div class="navlinks">
+    <a href="{{ url_for('index') }}" class="active">Scanner</a>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+
+  <section class="scanner-card">
+    <h1>Multi-Layer URL Threat Analysis</h1>
+    <p class="subtitle">Aggregates ML, threat intelligence, WHOIS, DNS &amp; typosquatting signals.</p>
+    <form action="/" method="post" class="scan-form">
+      <input type="text" name="url" placeholder="https://example.com/login"
+             required autofocus
+             value="{{ report.url if report else '' }}">
+      <button type="submit">Analyze</button>
+    </form>
+    {% if error %}<p class="error">⚠️ {{ error }}</p>{% endif %}
+    {% if historical %}<p class="info">📜 Viewing historical scan from {{ report.scanned_at }}</p>{% endif %}
+  </section>
+
+  {% if report %}
+  <section class="verdict-card verdict-{{ report.verdict.color }}">
+    <div class="verdict-main">
+      <div class="verdict-score">{{ report.verdict.final_score }}<span>/100</span></div>
+      <div class="verdict-text">
+        <div class="verdict-label">{{ report.verdict.verdict }}</div>
+        <div class="verdict-url">{{ report.url }}</div>
+        <div class="verdict-meta">Domain: <code>{{ report.domain }}</code> · Scan took {{ report.duration_ms }} ms</div>
+      </div>
+    </div>
+
+    <div class="breakdown">
+      <h3>Signal Breakdown (weighted)</h3>
+      {% for key, info in report.verdict.breakdown.items() %}
+      <div class="bd-row">
+        <span class="bd-name">{{ key.replace('_', ' ').title() }}</span>
+        <div class="bd-bar"><div class="bd-fill" style="width: {{ info.raw_score }}%"></div></div>
+        <span class="bd-score">{{ info.raw_score }}</span>
+        <span class="bd-weight">×{{ info.weight }}</span>
+        <span class="bd-contrib">= {{ info.contribution }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ============ MODULE: Threat Intelligence ============ -->
+  <section class="module-card">
+    <h2>🌐 Threat Intelligence</h2>
+    <p class="module-sub">{{ report.signals.threat_intel.malicious_hits }} malicious, {{ report.signals.threat_intel.suspicious_hits }} suspicious of {{ report.signals.threat_intel.sources|length }} sources</p>
+    <table class="ti-table">
+      <thead><tr><th>Source</th><th>Status</th><th>Verdict</th><th>Detail</th></tr></thead>
+      <tbody>
+      {% for s in report.signals.threat_intel.sources %}
+        <tr>
+          <td>{{ s.source }}</td>
+          <td><span class="pill pill-{{ s.status|lower }}">{{ s.status }}</span></td>
+          <td><span class="pill pill-{{ s.verdict }}">{{ s.verdict }}</span></td>
+          <td class="detail">{{ s.detail }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ MODULE: WHOIS ============ -->
+  <section class="module-card">
+    <h2>📋 WHOIS Forensics</h2>
+    <div class="kv-grid">
+      <div><span>Registrar</span><strong>{{ report.signals.whois.registrar or '—' }}</strong></div>
+      <div><span>Country</span><strong>{{ report.signals.whois.registrant_country or '—' }}</strong></div>
+      <div><span>Created</span><strong>{{ report.signals.whois.creation_date or '—' }}</strong></div>
+      <div><span>Expires</span><strong>{{ report.signals.whois.expiration_date or '—' }}</strong></div>
+      <div><span>Age</span><strong>{{ report.signals.whois.age_days if report.signals.whois.age_days is not none else '—' }} days</strong></div>
+      <div><span>Privacy proxy</span><strong>{{ 'Yes' if report.signals.whois.privacy_protected else 'No' }}</strong></div>
+    </div>
+    {% if report.signals.whois.flags %}
+    <ul class="flags">
+      {% for f in report.signals.whois.flags %}<li>🚩 {{ f }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+
+  <!-- ============ MODULE: DNS ============ -->
+  <section class="module-card">
+    <h2>🛰️ DNS Forensics</h2>
+    <div class="kv-grid">
+      <div><span>A records</span><strong>{{ report.signals.dns.a_records|join(', ') or '—' }}</strong></div>
+      <div><span>MX records</span><strong>{{ report.signals.dns.mx_records|length }} found</strong></div>
+      <div><span>Name servers</span><strong>{{ report.signals.dns.ns_records|length }} found</strong></div>
+      <div><span>TTL</span><strong>{{ report.signals.dns.ttl or '—' }} s</strong></div>
+      <div><span>SPF</span><strong>{{ '✓' if report.signals.dns.has_spf else '✗' }}</strong></div>
+      <div><span>DMARC</span><strong>{{ '✓' if report.signals.dns.has_dmarc else '✗' }}</strong></div>
+      <div><span>Reverse DNS</span><strong>{{ report.signals.dns.reverse_dns or '—' }}</strong></div>
+      <div><span>Fast-flux</span><strong>{{ 'YES ⚠️' if report.signals.dns.fast_flux_indicator else 'No' }}</strong></div>
+    </div>
+    {% if report.signals.dns.flags %}
+    <ul class="flags">
+      {% for f in report.signals.dns.flags %}<li>🚩 {{ f }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+
+  <!-- ============ MODULE: Typosquatting ============ -->
+  <section class="module-card">
+    <h2>🎭 Typosquatting / Brand Impersonation</h2>
+    {% if report.signals.typosquat.matched_brand %}
+      <p>Potential impersonation of <strong>{{ report.signals.typosquat.matched_brand }}</strong>
+         <span class="pill pill-malicious">{{ report.signals.typosquat.match_type.replace('_', ' ') }}</span>
+         {% if report.signals.typosquat.edit_distance is not none %}
+         · edit distance {{ report.signals.typosquat.edit_distance }}
+         {% endif %}
+      </p>
+    {% else %}
+      <p>No brand impersonation patterns detected.</p>
+    {% endif %}
+    {% if report.signals.typosquat.has_homoglyph %}
+      <p class="error">⚠️ Domain contains Unicode lookalike characters (IDN homograph attack indicator).</p>
+    {% endif %}
+    {% if report.signals.typosquat.flags %}
+    <ul class="flags">
+      {% for f in report.signals.typosquat.flags %}<li>🚩 {{ f }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+
+  <!-- ============ MODULE: ML ============ -->
+  <section class="module-card">
+    <h2>🤖 ML Signal (Gradient Boosting)</h2>
+    {% if report.signals.ml.available %}
+      <p>{{ report.signals.ml.detail }}</p>
+      <div class="meter">
+        <div class="meter-fill" style="width: {{ report.signals.ml.score }}%"></div>
+      </div>
+      <p class="muted">Score: {{ report.signals.ml.score }}/100 — one signal among five.</p>
+    {% else %}
+      <p class="muted">{{ report.signals.ml.detail }}</p>
+    {% endif %}
+  </section>
+
+  {% endif %}
+
+  <footer class="footer">
+    <p>PhishGuard · Multi-layer phishing analysis · Defense in depth</p>
+  </footer>
+
+</main>
+</body>
+</html>

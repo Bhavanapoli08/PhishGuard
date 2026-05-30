@@ -1,0 +1,16 @@
+# PhishTank-style local feed (sample)
+# One URL or domain per line. Lines starting with # are ignored.
+# In production this would be auto-refreshed from https://data.phishtank.com/
+# or https://openphish.com/feed.txt
+#
+# Format: lowercase URLs or bare domains
+http://paypa1-secure-login.com/verify
+http://faceb00k-account-recovery.tk
+http://amaz0n-india-prize.xyz/claim
+http://appleid-verify-account.ml
+http://login-microsoft365-update.cf
+http://hdfc-bank-netbanking-secure.top
+http://icicibank-online-verify.click
+secure-paypal-update.tk
+microsoft-office365-login-verify.xyz
+netflix-billing-update-account.ml
