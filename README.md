@@ -6,27 +6,29 @@ scan, and exposes both a Flask UI and a JSON API.
 
 ## Web Application
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/9a78d49e-beac-4ab1-b4db-77e0aa931b09" />
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/eeeca8bc-49fa-4cb6-9e13-4e3e45fe4a02" />
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/db813904-0d41-4422-8f85-69535181511c" />
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/514375d0-0008-4b84-8f4d-aeb6fa5b09d2" />
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/3907367c-a4e0-4df0-9281-848192b297e0" />
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/0140402c-ce00-4978-8250-3f365644e822" />
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/771675df-5d45-43a7-871a-a0f6adbe9618" />
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/1a405d2c-a2b7-4e9f-ad03-8fd346dca609" />
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/3f07a9f6-86d4-4b27-b8a2-9a1ea8b926fe" />
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/14414ffd-093d-4ffc-ba65-53cdd3d306a2" />
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/ba918340-596f-4a34-892b-8fffa3876eaa" />
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/810ae699-8e84-4353-ab25-6421f2ee2400" />
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/7f94d8e4-ef4f-472a-93d1-1699900abdaf" />
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/054af253-a896-4922-b2c2-91df0ef34a9b" />
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/7e66f528-abe0-4301-97d7-2ff7dea8154e" />
 
-<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/996e7743-4642-47d2-b99f-617159940c9f" />
+
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/cb44a493-cb4d-4bb5-9ce9-a417b919d17b" />
+
+
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/b4c768e4-1adc-4923-9476-c5c603d2617e" />
+
+
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/14944736-b102-4ee1-b972-3d59cfa3fbce" />
 
 ## Architecture
 
